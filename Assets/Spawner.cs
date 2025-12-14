@@ -3,19 +3,14 @@ using UnityEngine;
 public class Spawner : MonoBehaviour
 {
     public GameObject[] tetrominoes;
-    public Transform boardOrigin;
+    public Vector2 origin = Vector2.zero;
 
     public bool GameOver { get; private set; }
 
     void Start()
     {
         ClearGrid();
-
-        if (boardOrigin != null)
-            TetrisBlock.origin = boardOrigin.position;
-        else
-            TetrisBlock.origin = Vector2.zero;
-
+        TetrisBlock.origin = origin;
         SnapSpawnerToGrid();
         NewTetromino();
     }
@@ -31,16 +26,20 @@ public class Spawner : MonoBehaviour
         );
 
         var block = go.GetComponent<TetrisBlock>();
-        if (block != null && !block.IsValidNow())
+        if (block != null)
         {
-            GameOver = true;
-            Debug.Log("GAME OVER");
+            block.SnapAll();
+            if (!block.IsValidNow())
+            {
+                GameOver = true;
+                Debug.Log("GAME OVER");
+            }
         }
     }
 
     void SnapSpawnerToGrid()
     {
-        Vector2 p = transform.position;
+        Vector3 p = transform.position;
         p.x = Mathf.Round(p.x);
         p.y = Mathf.Round(p.y);
         transform.position = p;

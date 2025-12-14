@@ -16,7 +16,7 @@ public class TetrisBlock : MonoBehaviour
     {
         previousTime = Time.time;
         if (spawner == null) spawner = Object.FindFirstObjectByType<Spawner>();
-        AlignToGridByFirstChild();
+        SnapAll();
     }
 
     void Update()
@@ -26,22 +26,22 @@ public class TetrisBlock : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.LeftArrow))
         {
             transform.position += Vector3.left;
-            AlignToGridByFirstChild();
+            SnapAll();
             if (!IsValidMove())
             {
                 transform.position += Vector3.right;
-                AlignToGridByFirstChild();
+                SnapAll();
             }
         }
 
         if (Input.GetKeyDown(KeyCode.RightArrow))
         {
             transform.position += Vector3.right;
-            AlignToGridByFirstChild();
+            SnapAll();
             if (!IsValidMove())
             {
                 transform.position += Vector3.left;
-                AlignToGridByFirstChild();
+                SnapAll();
             }
         }
 
@@ -49,13 +49,12 @@ public class TetrisBlock : MonoBehaviour
         {
             transform.Rotate(0, 0, -90);
             SnapRotation();
-            AlignToGridByFirstChild();
-
+            SnapAll();
             if (!IsValidMove())
             {
                 transform.Rotate(0, 0, 90);
                 SnapRotation();
-                AlignToGridByFirstChild();
+                SnapAll();
             }
         }
 
@@ -63,12 +62,12 @@ public class TetrisBlock : MonoBehaviour
         if (Time.time - previousTime > interval)
         {
             transform.position += Vector3.down;
-            AlignToGridByFirstChild();
+            SnapAll();
 
             if (!IsValidMove())
             {
                 transform.position += Vector3.up;
-                AlignToGridByFirstChild();
+                SnapAll();
 
                 AddToGrid();
                 CheckLines();
@@ -83,6 +82,23 @@ public class TetrisBlock : MonoBehaviour
     }
 
     public bool IsValidNow() => IsValidMove();
+
+    public void SnapAll()
+    {
+        Vector3 p = transform.position;
+        p.x = Mathf.Round(p.x);
+        p.y = Mathf.Round(p.y);
+        transform.position = p;
+
+        foreach (Transform child in transform)
+        {
+            Vector3 lp = child.localPosition;
+            lp.x = Mathf.Round(lp.x);
+            lp.y = Mathf.Round(lp.y);
+            lp.z = 0f;
+            child.localPosition = lp;
+        }
+    }
 
     bool IsValidMove()
     {
@@ -163,23 +179,6 @@ public class TetrisBlock : MonoBehaviour
         return new Vector2Int(x, y);
     }
 
-    static Vector2 CellToWorld(Vector2Int cell)
-    {
-        return origin + (Vector2)cell;
-    }
-
-    void AlignToGridByFirstChild()
-    {
-        if (transform.childCount == 0) return;
-
-        Transform child = transform.GetChild(0);
-        Vector2Int cell = WorldToCell(child.position);
-        Vector2 target = CellToWorld(cell);
-        Vector2 delta = target - (Vector2)child.position;
-
-        transform.position += (Vector3)delta;
-    }
-
     void SnapRotation()
     {
         float z = transform.eulerAngles.z;
@@ -187,6 +186,7 @@ public class TetrisBlock : MonoBehaviour
         transform.eulerAngles = new Vector3(0f, 0f, z);
     }
 }
+
 
 
 
