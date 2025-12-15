@@ -1,4 +1,5 @@
 using UnityEngine;
+using System.Collections.Generic;
 
 public class Block : MonoBehaviour
 {
@@ -7,7 +8,40 @@ public class Block : MonoBehaviour
     [SerializeField]
     private bool canRotate = true;
 
+    private void Start()
+    {
+        SetRandomColor();
+    }
+
     //関数の作成//
+
+    // 子オブジェクトの色をランダムに変更する関数
+    void SetRandomColor()
+    {
+        // 辞書が空の場合は処理しない
+        if (ColorDictionary.ColorToId.Count == 0) return;
+
+        // 辞書のキー（色）をリストに変換
+        List<Color> colors = new List<Color>(ColorDictionary.ColorToId.Keys);
+
+        // ランダムに1色選ぶ
+        Color randomColor;
+        
+
+        // すべての子オブジェクトに対して処理
+        foreach (Transform child in transform)
+        {
+            SpriteRenderer spriteRenderer = child.GetComponent<SpriteRenderer>();
+            if (spriteRenderer != null)
+            {
+
+                randomColor = colors[Random.Range(0, colors.Count)];
+                randomColor.a = 1.0f;
+                spriteRenderer.color = randomColor;
+            }
+        }
+    }
+
     //移動用
     void Move(Vector3 moveDirection)
     {
