@@ -3,7 +3,7 @@ using UnityEngine;
 public class Board : MonoBehaviour
 {
     //2次元配列の作成//
-    private Transform[,] grid;
+    public Transform[,] grid;
 
     //関数の作成//
     //CheckPositionに追記
@@ -84,5 +84,24 @@ public class Board : MonoBehaviour
 
             grid[(int)pos.x, (int)pos.y] = item;
         }
+    }
+
+    public bool IsOverLimit()
+    {
+        // 判定を開始する高さ
+        int limitY = height - header - 4;
+
+        // limitY 以上のすべての行をチェックする
+        for (int y = limitY; y < height; y++)
+        {
+            for (int x = 0; x < width; x++)
+            {
+                if (grid[x, y] != null)
+                {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 }

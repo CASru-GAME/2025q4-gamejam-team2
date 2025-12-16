@@ -6,7 +6,7 @@ public class Spawner : MonoBehaviour
     [SerializeField]
     Block[] blocks;
     
-    Block GetRandomBlock()
+    private Block GetRandomBlock()
     {
         int i = Random.Range(0, blocks.Length);
 

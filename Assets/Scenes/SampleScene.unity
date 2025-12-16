@@ -452,6 +452,7 @@ GameObject:
   - component: {fileID: 1011847149}
   - component: {fileID: 1011847151}
   - component: {fileID: 1011847152}
+  - component: {fileID: 1011847153}
   m_Layer: 0
   m_Name: GameManager
   m_TagString: Untagged
@@ -474,6 +475,7 @@ MonoBehaviour:
   spawner: {fileID: 58228852}
   dropInterval: 0.25
   board: {fileID: 527498276}
+  gameCycle: {fileID: 1011847153}
   nextKeyDownInterval: 0.02
   nextKeyLeftRightInterval: 0.25
   nextKeyRotateInterval: 0.25
@@ -635,6 +637,19 @@ MonoBehaviour:
     id: 2
   - color: {r: 1, g: 0.986848, b: 0.6273585, a: 0}
     id: 3
+--- !u!114 &1011847153
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1011847148}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4a98836c44e566f48a5445ebabb49628, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::GameCycle
+  currentState: 0
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0

@@ -6,11 +6,11 @@ public class PutPhaseSystem : MonoBehaviour
     // 変数の作成//
     [SerializeField] private Spawner spawner;//スポナー
     private Block activeBlock;//生成されたブロック格納
-    [SerializeField]
-    private float dropInterval = 0.25f;//次にブロックが落ちるまでのインターバル時間
+    [SerializeField] private float dropInterval = 0.25f;//次にブロックが落ちるまでのインターバル時間
     private float nextdropTimer = 0.0f;//次にブロックが落ちるまでの時間
     [SerializeField] private Board board;//ボードのスクリプトを格納
-
+    [SerializeField] private GameCycle gameCycle;//ゲームサイクルのスクリプトを格納
+ 
     //入力受付タイマー（3種類）
     private  float nextKeyDownTimer, nextKeyLeftRightTimer, nextKeyRotateTimer;
     //入力インターバル（3種類）
@@ -27,7 +27,7 @@ public class PutPhaseSystem : MonoBehaviour
         nextKeyRotateTimer = Time.time + nextKeyRotateInterval;
 
         //スポナークラスからブロック生成関数を呼んで変数に格納する
-        if (!activeBlock)
+        if (!activeBlock && gameCycle.currentState == GameCycle.GameState.Put)
         {
             activeBlock = spawner.SpawnBlock();
         }
@@ -35,34 +35,32 @@ public class PutPhaseSystem : MonoBehaviour
 
     private void Update()
     {
-        //Updateで時間の判定をして判定次第で落下関数を呼ぶ
-        if (Time.time > nextdropTimer)
+        checkBlock();
+
+    }
+
+    private void checkBlock()
+    {
+        if (Time.time > nextdropTimer && gameCycle.currentState == GameCycle.GameState.Put)
         {
             nextdropTimer = Time.time + dropInterval;
             if (activeBlock)
             {
-                //activeBlock.MoveDown();
-
                 //UpdateでBoardクラスの関数を呼び出してボードから出ていないかを確認
                 if (!board.CheckPosition(activeBlock))
                 {
-                    //ボードから出ていたら元の位置に戻す
-                    activeBlock.MoveUp();
-
-                    board.SaveBlockInGrid(activeBlock);
-
-                    //新しいブロックを生成する
-                    activeBlock = spawner.SpawnBlock();
+                    // ボードから出ていたら（床や他のブロックに当たったら）固定処理を行う
+                    // BottomBoard() 内で MoveUp, Save, CheckOverflowing, Spawn が行われます
+                    BottomBoard();
                 }
             }
         }
-
     }
     //キーの入力を検知してブロックを動かす関数
     public void OnMove(InputAction.CallbackContext context)
     {
         // 入力が確定した瞬間のみ実行
-        if (context.performed)
+        if (context.performed && gameCycle.currentState == GameCycle.GameState.Put)
         {
             Vector2 value = context.ReadValue<Vector2>();
 
@@ -87,7 +85,7 @@ public class PutPhaseSystem : MonoBehaviour
 
     public void OnRotate(InputAction.CallbackContext context)
     {
-        if (context.performed)
+        if (context.performed && gameCycle.currentState == GameCycle.GameState.Put)
         {
             float value = context.ReadValue<float>();
 
@@ -112,7 +110,7 @@ public class PutPhaseSystem : MonoBehaviour
 
     public void OnDrop(InputAction.CallbackContext context)
     {
-        if (context.performed)
+        if (context.performed && gameCycle.currentState == GameCycle.GameState.Put)
         {
             // 有効な位置にある限り、下へ移動し続ける
             while (board.CheckPosition(activeBlock))
@@ -125,15 +123,33 @@ public class PutPhaseSystem : MonoBehaviour
             BottomBoard();
         }
     }
-    void BottomBoard()
+
+    private void BottomBoard()
     {
         activeBlock.MoveUp();
         board.SaveBlockInGrid(activeBlock);
 
-        activeBlock = spawner.SpawnBlock();
+        if(gameCycle.currentState == GameCycle.GameState.Put) activeBlock = spawner.SpawnBlock();
+        // ブロックを固定した直後にオーバーフローチェックを行う
+        CheckOverflowing();
 
         nextdropTimer = Time.time;
         nextKeyLeftRightTimer = Time.time;
         nextKeyRotateTimer = Time.time;
+    }
+
+    private void CheckOverflowing()
+    {
+        // Boardクラスに高さ制限を超えているか確認するメソッドがあると仮定
+        // もしBoardクラスにこの機能がない場合は、Boardクラスに `public bool IsOverLimit()` を追加する必要があります
+        if (board.IsOverLimit()) 
+        {
+            gameCycle.currentState = GameCycle.GameState.Delete;
+            // 必要であればアクティブなブロックを破棄したり、入力を無効化する処理を追加
+            if (activeBlock != null)
+            {
+                Destroy(activeBlock.gameObject);
+            }
+        }
     }
 }
