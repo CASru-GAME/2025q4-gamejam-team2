@@ -6,27 +6,18 @@ public class PutPhaseSystem : MonoBehaviour
     // 変数の作成//
     [SerializeField] private Spawner spawner;//スポナー
     private Block activeBlock;//生成されたブロック格納
-    [SerializeField] private float dropInterval = 0.25f;//次にブロックが落ちるまでのインターバル時間
-    private float nextdropTimer = 0.0f;//次にブロックが落ちるまでの時間
     [SerializeField] private Board board;//ボードのスクリプトを格納
     [SerializeField] private GameCycle gameCycle;//ゲームサイクルのスクリプトを格納
  
-    //入力受付タイマー（3種類）
-    private  float nextKeyDownTimer, nextKeyLeftRightTimer, nextKeyRotateTimer;
-    //入力インターバル（3種類）
-    [SerializeField]
-    private float nextKeyDownInterval, nextKeyLeftRightInterval, nextKeyRotateInterval;
 
     private void Start()
     {
         spawner.transform.position = Rounding.Round(spawner.transform.position);
+        SpawnBlock();
+    }
 
-        //タイマー初期化
-        nextKeyDownTimer = Time.time + nextKeyDownInterval;
-        nextKeyLeftRightTimer = Time.time + nextKeyLeftRightInterval;
-        nextKeyRotateTimer = Time.time + nextKeyRotateInterval;
-
-        //スポナークラスからブロック生成関数を呼んで変数に格納する
+    public void SpawnBlock()
+    {
         if (!activeBlock && gameCycle.currentState == GameCycle.GameState.Put)
         {
             activeBlock = spawner.SpawnBlock();
@@ -41,9 +32,8 @@ public class PutPhaseSystem : MonoBehaviour
 
     private void checkBlock()
     {
-        if (Time.time > nextdropTimer && gameCycle.currentState == GameCycle.GameState.Put)
+        if (gameCycle.currentState == GameCycle.GameState.Put)
         {
-            nextdropTimer = Time.time + dropInterval;
             if (activeBlock)
             {
                 //UpdateでBoardクラスの関数を呼び出してボードから出ていないかを確認
@@ -132,10 +122,6 @@ public class PutPhaseSystem : MonoBehaviour
         if(gameCycle.currentState == GameCycle.GameState.Put) activeBlock = spawner.SpawnBlock();
         // ブロックを固定した直後にオーバーフローチェックを行う
         CheckOverflowing();
-
-        nextdropTimer = Time.time;
-        nextKeyLeftRightTimer = Time.time;
-        nextKeyRotateTimer = Time.time;
     }
 
     private void CheckOverflowing()
@@ -150,6 +136,7 @@ public class PutPhaseSystem : MonoBehaviour
             {
                 Destroy(activeBlock.gameObject);
             }
+            board.Sorting();
         }
     }
 }

@@ -7,6 +7,7 @@ public class GameCycle : MonoBehaviour
         Start,
         Put,
         Delete,
+        Processing,
         GameOver
     }
     public GameState currentState;
