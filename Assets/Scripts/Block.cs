@@ -84,4 +84,22 @@ public class Block : MonoBehaviour
             transform.Rotate(0, 0, 90);
         }
     }
+
+    public void BreakBlock()
+    {
+        // 子オブジェクトがなくなるまで繰り返す
+        // (親を変更すると childCount が減るため、whileループで処理します)
+        while (transform.childCount > 0)
+        {
+            // 最初の子オブジェクトを取得
+            Transform child = transform.GetChild(0);
+
+            // 子オブジェクトの親を、現在のBlockの親（Boardなど）に変更する
+            // これにより、Blockと同じ階層に移動します
+            child.parent = transform.parent;
+        }
+
+        // 空になった自分自身（Blockの親オブジェクト）を削除
+        Destroy(gameObject);
+    }
 }

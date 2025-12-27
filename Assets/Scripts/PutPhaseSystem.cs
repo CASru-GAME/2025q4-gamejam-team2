@@ -140,7 +140,10 @@ public class PutPhaseSystem : MonoBehaviour
         activeBlock.MoveUp();
         board.SaveBlockInGrid(activeBlock);
 
-        if(gameCycle.currentState == GameCycle.GameState.Put) activeBlock = spawner.SpawnBlock();
+        if(gameCycle.currentState == GameCycle.GameState.Put){
+            activeBlock.BreakBlock();
+            activeBlock = spawner.SpawnBlock();
+        }
         // ブロックを固定した直後にオーバーフローチェックを行う
         CheckOverflowing();
     }

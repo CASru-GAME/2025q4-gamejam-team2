@@ -39,6 +39,33 @@ public class Board : MonoBehaviour
                 }
             }
         }
+        // 上限の線を引く
+        DrawLimitLine();
+    }
+
+    void DrawLimitLine()
+    {
+        GameObject lineObj = new GameObject("LimitLine");
+        lineObj.transform.parent = this.transform;
+
+        LineRenderer lr = lineObj.AddComponent<LineRenderer>();
+        // 2D用のデフォルトシェーダーを使用（これがないとピンク色になることがあります）
+        lr.material = new Material(Shader.Find("Sprites/Default"));
+        lr.startColor = Color.red;
+        lr.endColor = Color.red;
+        lr.startWidth = 0.1f;
+        lr.endWidth = 0.1f;
+        lr.positionCount = 2;
+
+        // IsOverLimitの判定基準となる高さ
+        // IsOverLimitでは limitY = height - header - 4 以上の行にあるとNG
+        // つまり、limitY - 1 まではOK。境界線は limitY - 0.5 の位置
+        float limitY = (height - header - 4) - 0.5f;
+
+        // 線の始点と終点（グリッドの幅全体をカバー）
+        // Z軸を-1にして手前に表示
+        lr.SetPosition(0, new Vector3(-0.5f, limitY, -1f));
+        lr.SetPosition(1, new Vector3(width - 0.5f, limitY, -1f));
     }
 
     // ブロックが枠内にあるのか判定する関数を呼ぶ関数
