@@ -12,7 +12,7 @@ public class GameCycle : MonoBehaviour
     }
     public GameState currentState;
 
-    void Start()
+    void Awake()
     {
         currentState = GameState.Put;
 

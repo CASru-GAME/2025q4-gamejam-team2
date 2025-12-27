@@ -8,7 +8,7 @@ public class PutPhaseSystem : MonoBehaviour
     private Block activeBlock;//生成されたブロック格納
     [SerializeField] private Board board;//ボードのスクリプトを格納
     [SerializeField] private GameCycle gameCycle;//ゲームサイクルのスクリプトを格納
- 
+    [SerializeField] private Beat Beat;//ビートのスクリプトを格納
 
     private void Start()
     {
@@ -27,7 +27,19 @@ public class PutPhaseSystem : MonoBehaviour
     private void Update()
     {
         checkBlock();
+        MoveDownOnBeat();
+    }
 
+    private void MoveDownOnBeat()
+    {
+        if (gameCycle.currentState == GameCycle.GameState.Put)
+        {
+            if (Time.time >= Beat.nextBeatTime)
+            {
+                Beat.nextBeatTime += Beat.beatInterval;
+                activeBlock.MoveDown();
+            }
+        }
     }
 
     private void checkBlock()
@@ -52,6 +64,9 @@ public class PutPhaseSystem : MonoBehaviour
         // 入力が確定した瞬間のみ実行
         if (context.performed && gameCycle.currentState == GameCycle.GameState.Put)
         {
+            // タイミングが合っていない場合動かせない
+            if (!Beat.IsOnBeat()) return;
+
             Vector2 value = context.ReadValue<Vector2>();
 
             if (value.x > 0) // 右移動
@@ -77,6 +92,9 @@ public class PutPhaseSystem : MonoBehaviour
     {
         if (context.performed && gameCycle.currentState == GameCycle.GameState.Put)
         {
+            // タイミングが合っていない場合動かせない
+            if (!Beat.IsOnBeat()) return;
+
             float value = context.ReadValue<float>();
 
             if (value > 0) // 右回転
@@ -102,6 +120,9 @@ public class PutPhaseSystem : MonoBehaviour
     {
         if (context.performed && gameCycle.currentState == GameCycle.GameState.Put)
         {
+            // タイミングが合っていない場合動かせない
+            if (!Beat.IsOnBeat()) return;
+
             // 有効な位置にある限り、下へ移動し続ける
             while (board.CheckPosition(activeBlock))
             {

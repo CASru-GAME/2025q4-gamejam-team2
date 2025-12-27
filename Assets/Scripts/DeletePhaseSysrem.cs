@@ -6,6 +6,7 @@ public class DeletePhaseSysrem : MonoBehaviour
     [SerializeField] private GameCycle gameCycle;
     [SerializeField] private Board board;//ボードのスクリプトを格納
     [SerializeField] private PutPhaseSystem putPhaseSystem;
+    [SerializeField] private Beat beat;//ビートのスクリプトを格納
     private Camera mainCamera;
 
     private void Start()
@@ -19,6 +20,9 @@ public class DeletePhaseSysrem : MonoBehaviour
         // クリックされた瞬間かつ、Deleteフェーズの時のみ実行
         if (context.performed && gameCycle.currentState == GameCycle.GameState.Delete)
         {
+            // タイミングが合っていない場合動かせない
+            if (!beat.IsOnBeat()) return;
+
             // マウスのスクリーン座標を取得
             Vector2 mousePos = Mouse.current.position.ReadValue();
             // ワールド座標に変換
